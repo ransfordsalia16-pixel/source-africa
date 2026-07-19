@@ -26,7 +26,7 @@ export const NAV = {
     { to: "/admin/supplier-applications", label: "Supplier applications", icon: "🧾" },
     { to: "/admin/buyers", label: "Buyer verification", icon: "🪪" },
     { to: "/admin/buyer-profiles", label: "Buyer profiles", icon: "🏢" },
-    { to: "/admin/payments", label: "Payments and escrow", icon: "💰" },
+    { to: "/admin/payments", label: "Payments", icon: "💰" },
     { to: "/admin/disputes", label: "Disputes", icon: "⚖️" },
     { to: "/admin/cases", label: "Support cases", icon: "🗂️" },
     { to: "/admin/logistics", label: "Logistics", icon: "🚢" },
