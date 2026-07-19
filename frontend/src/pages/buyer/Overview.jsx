@@ -25,7 +25,7 @@ export default function BuyerOverview() {
 
   const activeRequests = requests.filter((r) => r.status !== "order_confirmed").length;
   const activeOrders = orders.filter((o) => o.stage !== "delivered").length;
-  const inEscrow = orders.filter((o) => o.paymentStatus === "secured").length;
+  const paymentsConfirmed = orders.filter((o) => o.paymentStatus === "secured").length;
   const totalSpend = orders.reduce((sum, o) => sum + o.value, 0);
 
   return (
@@ -46,7 +46,7 @@ export default function BuyerOverview() {
         cards={[
           { label: "Active requests", value: activeRequests, sublabel: "Still in progress" },
           { label: "Active orders", value: activeOrders, sublabel: "Being fulfilled" },
-          { label: "Orders in escrow", value: inEscrow, sublabel: "Payment protected", tone: "ok" },
+          { label: "Payments confirmed", value: paymentsConfirmed, sublabel: "Not yet released to supplier", tone: "ok" },
           { label: "Total spend this year", value: currency(totalSpend), sublabel: "Across every order" },
         ]}
       />
@@ -64,11 +64,11 @@ export default function BuyerOverview() {
         </Panel>
         <Panel title="Every order is protected">
           <p className="muted" style={{ marginBottom: 14 }}>
-            When you order through SourceBridge, your money is held until you personally approve the inspected goods.
+            When you order through SourceBridge, the supplier isn't paid out until you personally approve the inspected goods (or a dispute is resolved in your favor).
           </p>
           <div className="doc-checklist">
             <li>Verified supplier <span className="pill pill-ok">Confirmed</span></li>
-            <li>Secure payment <span className="pill pill-ok">Escrow</span></li>
+            <li>Secure payment <span className="pill pill-ok">Confirmed</span></li>
             <li>Quality inspection <span className="pill pill-ok">Included</span></li>
             <li>Shipment tracking <span className="pill pill-ok">Live</span></li>
             <li>Support if something goes wrong <span className="pill pill-ok">Available</span></li>
