@@ -1,0 +1,19 @@
+{
+  "name": "source-africa",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SOURCE AFRICA marketplace — root convenience scripts. frontend/ and backend/ are separate npm projects (not workspaces), each with their own node_modules and package.json.",
+  "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1",
+    "build": "npm run build:frontend",
+    "test": "node -e \"console.log('No automated tests are configured yet. See tests/README.md for manual verification steps.')\"",
+    "install:frontend": "npm --prefix frontend install",
+    "install:backend": "npm --prefix backend install",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "migrate": "npm --prefix backend run migrate",
+    "seed": "npm --prefix backend run seed"
+  }
+}
