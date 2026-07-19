@@ -80,11 +80,11 @@ export const orderStageLabels = {
 };
 
 export let transactions = [
-  { id: "TXN-5510", orderId: "ORD-8842", type: "Escrow deposit", amount: 27500, status: "held", date: "2026-06-05" },
-  { id: "TXN-5498", orderId: "ORD-8790", type: "Escrow deposit", amount: 3900, status: "released", date: "2026-05-10" },
+  { id: "TXN-5510", orderId: "ORD-8842", type: "Payment confirmed", amount: 27500, status: "held", date: "2026-06-05" },
+  { id: "TXN-5498", orderId: "ORD-8790", type: "Payment confirmed", amount: 3900, status: "released", date: "2026-05-10" },
   { id: "TXN-5499", orderId: "ORD-8790", type: "Supplier payout", amount: 3705, status: "released", date: "2026-06-30" },
-  { id: "TXN-5505", orderId: "ORD-8830", type: "Escrow deposit", amount: 9200, status: "held", date: "2026-06-20" },
-  { id: "TXN-5507", orderId: "ORD-8811", type: "Escrow deposit", amount: 11400, status: "held", date: "2026-06-25" },
+  { id: "TXN-5505", orderId: "ORD-8830", type: "Payment confirmed", amount: 9200, status: "held", date: "2026-06-20" },
+  { id: "TXN-5507", orderId: "ORD-8811", type: "Payment confirmed", amount: 11400, status: "held", date: "2026-06-25" },
   { id: "TXN-5501", orderId: "ORD-8776", type: "Milestone 1 (20 percent)", amount: 980, status: "released", date: "2026-05-28" },
   { id: "TXN-5502", orderId: "ORD-8776", type: "Milestone 2 (40 percent)", amount: 1960, status: "held", date: "2026-07-01" },
 ];
@@ -116,7 +116,7 @@ export const shipments = [
 
 export let auditLog = [
   { id: "LOG-9001", actor: "Kwame Asante (Admin)", action: "Approved supplier verification VER-425", time: "2026-07-17 14:22" },
-  { id: "LOG-9000", actor: "System", action: "Escrow released for ORD-8790, $3,705 to SUP-004", time: "2026-06-30 09:03" },
+  { id: "LOG-9000", actor: "System", action: "Payout released for ORD-8790, $3,705 to SUP-004", time: "2026-06-30 09:03" },
   { id: "LOG-8998", actor: "Finance Admin", action: "Reviewed milestone payment for ORD-8776", time: "2026-07-01 11:47" },
   { id: "LOG-8991", actor: "Security system", action: "Flagged an unusual login for SUP-006 from a new device in Lagos", time: "2026-07-15 03:12" },
   { id: "LOG-8985", actor: "Kwame Asante (Admin)", action: "Opened dispute investigation DSP-221", time: "2026-07-12 16:40" },
