@@ -7,7 +7,7 @@ import StatusPill from "../../components/StatusPill.jsx";
 import { StatGrid } from "../../components/StatCard.jsx";
 import OrderDetailModal from "../../components/OrderDetailModal.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { getBuyerRequests } from "../../services/api/buyers.js";
+import { getMyRequests } from "../../services/api/sourcingRequests.js";
 import { getOrders } from "../../services/api/orders.js";
 import { currency } from "../../utils/format.js";
 
@@ -19,11 +19,11 @@ export default function BuyerOverview() {
   const [activeOrder, setActiveOrder] = useState(null);
 
   useEffect(() => {
-    getBuyerRequests().then(setRequests);
+    getMyRequests().then(setRequests);
     getOrders().then(setOrders);
   }, []);
 
-  const activeRequests = requests.filter((r) => r.status !== "order_confirmed").length;
+  const activeRequests = requests.filter((r) => r.status !== "CLOSED").length;
   const activeOrders = orders.filter((o) => o.stage !== "delivered").length;
   const paymentsConfirmed = orders.filter((o) => o.paymentStatus === "secured").length;
   const totalSpend = orders.reduce((sum, o) => sum + o.value, 0);
@@ -56,8 +56,8 @@ export default function BuyerOverview() {
           <DataTable
             columns={[
               { label: "Request", render: (r) => (<><strong>{r.product}</strong><br /><span className="muted">{r.id}</span></>) },
-              { label: "Quantity", key: "quantity" },
-              { label: "Status", render: (r) => <StatusPill status={r.status} /> },
+              { label: "Quantity", render: (r) => r.quantity || "Not specified" },
+              { label: "Status", render: (r) => <StatusPill status={r.status?.toLowerCase()} /> },
             ]}
             rows={requests.slice(0, 4)}
           />

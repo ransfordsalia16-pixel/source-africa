@@ -1,6 +1,5 @@
-// The real HTTP layer, talking to sourcebridge-server. auth.js, orders.js (and later stages'
-// messaging/disputes modules) go through apiFetch; suppliers.js, buyers.js, payments.js,
-// disputes.js, messages.js, and audit.js are still mocked and use delay() instead — see the
+// The real HTTP layer, talking to sourcebridge-server. Most services go through apiFetch;
+// suppliers.js, buyers.js, and audit.js are still mocked and use delay() instead — see the
 // "STAGE 1" comment at the top of each of those files.
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";

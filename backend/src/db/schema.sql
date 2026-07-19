@@ -148,6 +148,42 @@ CREATE INDEX IF NOT EXISTS idx_business_documents_business ON business_documents
 CREATE INDEX IF NOT EXISTS idx_business_images_business ON business_images(business_id);
 CREATE INDEX IF NOT EXISTS idx_business_verification_transitions_business ON business_verification_transitions(business_id);
 
+-- A buyer's sourcing request (RFQ), browsable by any supplier once open. No state-machine
+-- complexity needed here, unlike orders — status just tracks whether anyone has quoted yet.
+CREATE TABLE IF NOT EXISTS sourcing_requests (
+  id TEXT PRIMARY KEY,
+  buyer_id TEXT NOT NULL REFERENCES users(id),
+  product TEXT NOT NULL,
+  quantity TEXT,
+  budget TEXT,
+  destination TEXT,
+  required_by TEXT,
+  specs TEXT,
+  status TEXT NOT NULL DEFAULT 'OPEN', -- OPEN | QUOTED | CLOSED
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT
+);
+
+-- A supplier's quote against a sourcing request. Only the buyer who owns the request sees every
+-- quote's price; a supplier browsing open requests only ever sees their own quote, never a
+-- competitor's price. See domain/sourcingRequests.js.
+CREATE TABLE IF NOT EXISTS sourcing_request_quotes (
+  id TEXT PRIMARY KEY,
+  sourcing_request_id TEXT NOT NULL REFERENCES sourcing_requests(id),
+  supplier_business_id TEXT NOT NULL REFERENCES businesses(id),
+  price_label TEXT NOT NULL,
+  note TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_sourcing_requests_buyer ON sourcing_requests(buyer_id);
+CREATE INDEX IF NOT EXISTS idx_sourcing_requests_status ON sourcing_requests(status);
+CREATE INDEX IF NOT EXISTS idx_sourcing_request_quotes_request ON sourcing_request_quotes(sourcing_request_id);
+CREATE INDEX IF NOT EXISTS idx_sourcing_request_quotes_supplier ON sourcing_request_quotes(supplier_business_id);
+-- One quote per supplier per request — domain/sourcingRequests.js also checks this up front for
+-- a clean error message, but the constraint is the actual guarantee.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sourcing_request_quotes_unique ON sourcing_request_quotes(sourcing_request_id, supplier_business_id);
+
 CREATE TABLE IF NOT EXISTS orders (
   id TEXT PRIMARY KEY,
   buyer_id TEXT NOT NULL REFERENCES users(id),

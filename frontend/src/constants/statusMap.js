@@ -27,6 +27,7 @@ export const STATUS_MAP = {
   gold: ["Gold", "warn"],
   platinum: ["Platinum", "ok"],
   open: ["Open", "warn"],
+  quoted: ["Quotes received", "info"],
   escalated: ["Escalated", "danger"],
   closed: ["Closed", "ok"],
   SUPPLIER_APPLICATION_STARTED: ["Draft", "neutral"],

@@ -123,6 +123,19 @@ const BUSINESSES = [
 ];
 for (const b of BUSINESSES) insertBusiness.run(b);
 
+// Real product rows for the seeded supplier account (SUP-001) so its dashboard isn't empty the
+// moment supplier/Overview.jsx and supplier/Profile.jsx stop reading the old mock supplier data.
+// Deterministic IDs, INSERT OR IGNORE, matching the idempotency pattern used everywhere else here.
+const insertProduct = db.prepare(`
+  INSERT OR IGNORE INTO products (id, business_id, name, category, price_label, moq, production_time)
+  VALUES (@id, @business_id, @name, @category, @price_label, @moq, @production_time)
+`);
+const PRODUCTS = [
+  { id: "PRD-SEED-001", business_id: "SUP-001", name: "450W Monocrystalline Solar Panel", category: "Energy", price_label: "$62 to $78 per unit", moq: "50 units", production_time: "15 to 20 days" },
+  { id: "PRD-SEED-002", business_id: "SUP-001", name: "5kW Off-Grid Solar Inverter", category: "Energy", price_label: "$210 to $260 per unit", moq: "10 units", production_time: "20 to 25 days" },
+];
+for (const p of PRODUCTS) insertProduct.run(p);
+
 // Matches the cosmetic company name already shown for this account (see
 // COSMETIC_FALLBACK_BY_USER_ID in frontend/src/services/api/auth.js) so the seeded demo buyer
 // appears verified out of the box. The second buyer (buyerTwo) intentionally has no profile,

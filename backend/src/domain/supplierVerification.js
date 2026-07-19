@@ -245,10 +245,18 @@ export function addDocument(user, { type, filePath }) {
   return getDocumentById.get(doc.id);
 }
 
+// Storefront photos aren't verification evidence the way business_documents are, so a verified
+// supplier managing their live storefront can keep adding them — unlike documents, which stay
+// locked to the applicant states once a business has passed review (see requireEditableOrThrow).
 export function addImage(user, { caption, filePath }) {
   const business = getBusinessOwnedBy.get(user.id);
   if (!business) throw new BusinessNotFoundError();
-  requireEditableOrThrow(business);
+  if (business.verification_status === "SUPPLIER_VERIFICATION_PENDING") {
+    throw new ApplicationNotEditableError();
+  }
+  if (!EDITABLE_STATES.has(business.verification_status) && business.verification_status !== "SUPPLIER_VERIFIED") {
+    throw new ApplicationAlreadyExistsError();
+  }
   const img = { id: genId("IMG"), business_id: business.id, file_path: filePath, caption: caption || null, uploaded_by_user_id: user.id };
   insertImage.run(img);
   return getImageById.get(img.id);

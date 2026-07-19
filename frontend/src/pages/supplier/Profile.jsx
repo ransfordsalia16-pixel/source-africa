@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
 import Panel from "../../components/Panel.jsx";
-import { getMySupplier } from "../../services/api/suppliers.js";
+import StatusPill from "../../components/StatusPill.jsx";
+import { getMyApplication, uploadMyImage, openMyImageFile } from "../../services/api/businessApplications.js";
 import { getMyPayoutAccount, requestPayoutAccountChange } from "../../services/api/payoutAccounts.js";
 import { trustLabel } from "../../utils/format.js";
+import { DOCUMENT_TYPE_LABELS } from "../../constants/businessDocuments.js";
 import { useToast } from "../../context/ToastContext.jsx";
 
-const DOCUMENTS = ["Business license", "Factory inspection", "Export history", "Certifications (ISO, CE, IEC)"];
 const EMPTY_PAYOUT_FORM = { type: "bank", bankName: "", accountNumber: "", provider: "", phoneNumber: "", currentPassword: "" };
 
 function PayoutAccountPanel() {
@@ -119,14 +120,51 @@ function PayoutAccountPanel() {
 }
 
 export default function SupplierProfile() {
-  const [me, setMe] = useState(null);
+  const [me, setMe] = useState(undefined); // undefined = loading, null = no business yet
+  const [documents, setDocuments] = useState([]);
+  const [images, setImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const showToast = useToast();
 
-  useEffect(() => {
-    getMySupplier().then(setMe);
-  }, []);
+  function load() {
+    getMyApplication().then((app) => {
+      setMe(app?.business ?? null);
+      setDocuments(app?.documents ?? []);
+      setImages(app?.images ?? []);
+    });
+  }
 
-  if (!me) return null;
+  useEffect(load, []);
+
+  async function handleFileSelected(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      await uploadMyImage("", file);
+      showToast("Photo uploaded.");
+      load();
+    } catch (err) {
+      showToast(err.message || "Could not upload that photo.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  if (me === undefined) return null;
+
+  if (!me) {
+    return (
+      <>
+        <PageHeader title="Company profile" />
+        <Panel>
+          <p className="muted">Your account doesn't have a linked business record yet. Contact support if this looks wrong.</p>
+        </Panel>
+      </>
+    );
+  }
 
   return (
     <>
@@ -134,39 +172,46 @@ export default function SupplierProfile() {
       <Panel>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <span className="pill pill-warn">{trustLabel(me.trustLevel)}</span>
+            <StatusPill status={me.verificationStatus} />
             <h2 style={{ marginTop: 10 }}>{me.name}</h2>
-            <p className="muted">{me.location} · {me.type} · Founded {me.established} · {me.employees} employees</p>
+            <p className="muted">{me.location || "Location not set"} · {me.type || "Type not set"} · Founded {me.establishedYear || "unknown"} · {me.employees || "unknown"} employees</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <span className="muted" style={{ display: "block", fontSize: "0.75rem", textTransform: "uppercase" }}>Trust score</span>
             <strong style={{ fontSize: "2rem", color: "var(--forest)" }}>
               {me.trustScore}<span className="muted" style={{ fontSize: "1rem" }}>/100</span>
             </strong>
+            <div className="muted">{trustLabel(me.trustLevel)}</div>
           </div>
         </div>
 
         <div className="doc-checklist" style={{ marginTop: 18 }}>
-          {DOCUMENTS.map((doc) => {
-            const isVerified = me.verified.some((v) => doc.startsWith(v));
+          {Object.entries(DOCUMENT_TYPE_LABELS).filter(([type]) => type !== "other").map(([type, label]) => {
+            const onFile = documents.some((d) => d.type === type);
             return (
-              <li key={doc}>
-                {doc} <span className={`pill ${isVerified ? "pill-ok" : "pill-danger"}`}>{isVerified ? "Verified" : "Missing"}</span>
+              <li key={type}>
+                {label} <span className={`pill ${onFile ? "pill-ok" : "pill-danger"}`}>{onFile ? "On file" : "Not uploaded"}</span>
               </li>
             );
           })}
         </div>
 
         <h2 style={{ marginTop: 22 }}>Photos of your company</h2>
-        <div className="media-grid">
-          <div>Factory entrance</div>
-          <div>Production line</div>
-          <div>Warehouse</div>
-          <div>Your team</div>
-        </div>
+        {images.length > 0 ? (
+          <div className="media-grid">
+            {images.map((img) => (
+              <div key={img.id} onClick={() => openMyImageFile(img.id)} style={{ cursor: "pointer" }}>
+                {img.caption || "Photo"}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted">No photos uploaded yet.</p>
+        )}
         <div style={{ marginTop: 16 }}>
-          <button className="btn btn-secondary btn-sm" onClick={() => showToast("Uploaded. SourceBridge will review it shortly.")}>
-            Add a photo or video
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleFileSelected} />
+          <button className="btn btn-secondary btn-sm" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+            {uploading ? "Uploading..." : "Add a photo"}
           </button>
         </div>
       </Panel>
