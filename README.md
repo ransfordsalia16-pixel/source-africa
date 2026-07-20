@@ -170,7 +170,42 @@ Real secrets (`JWT_SECRET`, `WEBHOOK_SECRET`, production demo/admin passwords) b
 browser bundle, i.e. is effectively public). Use `backend/.env.example` and `frontend/.env.example`
 as the templates for what variables exist; they contain placeholders only.
 
-## Creating a production build
+## Deployment
+
+### Staging environment (Vercel + Render)
+
+A shared staging deployment tracks `master` — every push auto-redeploys both sides:
+
+| | URL | Host |
+|---|---|---|
+| Frontend | https://source-africa-nwsinz75s-ransford-salia.vercel.app | Vercel |
+| Backend | https://source-africa-backend.onrender.com | Render (Blueprint: `render.yaml`) |
+
+Sign in with the same [demo accounts](#6-test-the-complete-marketplace) as local dev.
+
+The backend's `render.yaml` runs `migrate` and `seed` on every boot rather than relying on
+persistent storage — Render's free plan has no persistent disk, so the SQLite file doesn't
+survive a restart anyway. Both scripts are idempotent, so this just means the staging environment
+always comes back up with a clean, known demo dataset. One consequence of the free plan: the
+backend spins down after ~15 minutes idle, so the first request after a gap takes 30–50s to wake
+it back up.
+
+To stand up your own copy of this staging setup:
+
+1. **Backend on Render** — New → Blueprint → connect this repo. It auto-detects `render.yaml`.
+   You'll be asked for `MFA_ENCRYPTION_KEY` (generate with
+   `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` — must be exactly
+   64 hex characters) since Render's auto-generated values don't guarantee that shape. Leave
+   `CORS_ORIGIN` blank for now.
+2. **Frontend on Vercel** — Add New → Project → import this repo, set **Root Directory** to
+   `frontend`, and add environment variable `VITE_API_BASE_URL` = your Render URL from step 1.
+3. Back in Render, set `CORS_ORIGIN` to your Vercel URL from step 2 and redeploy — the backend
+   otherwise rejects requests from the frontend's origin.
+4. By default Vercel's Deployment Protection requires a Vercel login to view any deployment,
+   including production. To make the site actually public, go to Project → Settings →
+   Deployment Protection → set Vercel Authentication to Disabled.
+
+### Building for other hosts
 
 Only the frontend has a build step — the backend runs directly with Node:
 
@@ -181,6 +216,5 @@ npm run build
 
 Outputs static files to `frontend/dist/`, servable from any static host. The backend
 (`cd backend && npm start`) needs a real Node host, a persistent volume for
-`backend/data/sourcebridge.sqlite` and `backend/uploads/`, and `backend/.env` populated with
-production values — none of which this repo sets up for you, since that depends on where you
-actually deploy.
+`backend/data/sourcebridge.sqlite` and `backend/uploads/` if you want data to survive restarts
+without reseeding, and `backend/.env` populated with production values.
