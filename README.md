@@ -124,9 +124,9 @@ Sign in with the seeded demo accounts (created by `npm run seed`; passwords come
 
 | Role | Email | Password |
 |---|---|---|
-| Buyer | `ama@boateng-hospitality.example` | `demo-buyer-pass` |
-| Supplier | `liwei@shenzhensolar.example` | `demo-supplier-pass` |
-| Admin | `kwame@sourcebridge.example` | `demo-admin-pass` |
+| Buyer | `tony@gmail.com` | `123456789` |
+| Supplier | `steve@gmail.com` | `123456789` |
+| Admin | `ransfordsalia16@gmail.com` | `123456789` |
 
 Buyer and supplier sign in at `/#/sign-in`. **Admin sign-in is a separate page**, `/#/admin-login`
 — there is no admin option on the public sign-in form, by design (see
