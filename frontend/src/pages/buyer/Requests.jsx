@@ -4,40 +4,50 @@ import Panel from "../../components/Panel.jsx";
 import DataTable from "../../components/DataTable.jsx";
 import StatusPill from "../../components/StatusPill.jsx";
 import Modal from "../../components/Modal.jsx";
-import { getBuyerRequests, createBuyerRequest } from "../../services/api/buyers.js";
+import { getMyRequests, createRequest, getRequestDetail } from "../../services/api/sourcingRequests.js";
 import { useToast } from "../../context/ToastContext.jsx";
 
 const EMPTY_FORM = { product: "", quantity: "", budget: "", destination: "", requiredBy: "", specs: "" };
 
 export default function BuyerRequests() {
   const [requests, setRequests] = useState([]);
-  const [viewing, setViewing] = useState(null);
+  const [viewing, setViewing] = useState(null); // the summary row clicked
+  const [detail, setDetail] = useState(undefined); // undefined = loading, then the fetched detail
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const showToast = useToast();
 
   function load() {
-    getBuyerRequests().then(setRequests);
+    getMyRequests().then(setRequests);
   }
 
   useEffect(load, []);
+
+  function openView(request) {
+    setViewing(request);
+    setDetail(undefined);
+    getRequestDetail(request.id).then(setDetail);
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await createBuyerRequest({
+      await createRequest({
         product: form.product || "Untitled request",
-        quantity: form.quantity || "Not specified",
-        budget: form.budget || "Not specified",
-        destination: form.destination || "Not specified",
-        requiredBy: form.requiredBy || "Not specified",
+        quantity: form.quantity || undefined,
+        budget: form.budget || undefined,
+        destination: form.destination || undefined,
+        requiredBy: form.requiredBy || undefined,
+        specs: form.specs || undefined,
       });
-      showToast("Your request is on its way to verified suppliers.");
+      showToast("Your request is now visible to verified suppliers.");
       setCreating(false);
       setForm(EMPTY_FORM);
       load();
+    } catch (err) {
+      showToast(err.message || "Could not send that request.");
     } finally {
       setSubmitting(false);
     }
@@ -53,14 +63,15 @@ export default function BuyerRequests() {
 
       <Panel>
         <DataTable
+          empty="You haven't sent any sourcing requests yet."
           columns={[
             { label: "Request", render: (r) => (<><strong>{r.product}</strong><br /><span className="muted">{r.id} · submitted {r.createdAt}</span></>) },
-            { label: "Quantity", key: "quantity" },
-            { label: "Budget", key: "budget" },
-            { label: "Needed by", key: "requiredBy" },
+            { label: "Quantity", render: (r) => r.quantity || "Not specified" },
+            { label: "Budget", render: (r) => r.budget || "Not specified" },
+            { label: "Needed by", render: (r) => r.requiredBy || "Not specified" },
             { label: "Quotes", render: (r) => r.quotesCount },
-            { label: "Status", render: (r) => <StatusPill status={r.status} /> },
-            { label: "", render: (r) => <button className="btn btn-secondary btn-sm" onClick={() => setViewing(r)}>View</button> },
+            { label: "Status", render: (r) => <StatusPill status={r.status?.toLowerCase()} /> },
+            { label: "", render: (r) => <button className="btn btn-secondary btn-sm" onClick={() => openView(r)}>View</button> },
           ]}
           rows={requests}
         />
@@ -69,12 +80,24 @@ export default function BuyerRequests() {
       <Modal open={!!viewing} onClose={() => setViewing(null)} title={viewing?.product} footer={<button className="btn btn-secondary" onClick={() => setViewing(null)}>Close</button>}>
         {viewing && (
           <div className="doc-checklist">
-            <li>Quantity <strong>{viewing.quantity}</strong></li>
-            <li>Budget <strong>{viewing.budget}</strong></li>
-            <li>Delivery to <strong>{viewing.destination}</strong></li>
-            <li>Needed by <strong>{viewing.requiredBy}</strong></li>
-            <li>Quotes received <strong>{viewing.quotesCount}</strong></li>
-            <li>Status <StatusPill status={viewing.status} /></li>
+            <li>Quantity <strong>{viewing.quantity || "Not specified"}</strong></li>
+            <li>Budget <strong>{viewing.budget || "Not specified"}</strong></li>
+            <li>Delivery to <strong>{viewing.destination || "Not specified"}</strong></li>
+            <li>Needed by <strong>{viewing.requiredBy || "Not specified"}</strong></li>
+            <li>Status <StatusPill status={viewing.status?.toLowerCase()} /></li>
+          </div>
+        )}
+        <h2 style={{ marginTop: 18 }}>Quotes</h2>
+        {detail === undefined && <p className="muted">Loading quotes...</p>}
+        {detail && detail.quotes.length === 0 && <p className="muted">No quotes yet.</p>}
+        {detail && detail.quotes.length > 0 && (
+          <div className="doc-checklist">
+            {detail.quotes.map((q) => (
+              <li key={q.id}>
+                <strong>{q.supplierName}</strong> — {q.priceLabel}
+                {q.note && <><br /><span className="muted">{q.note}</span></>}
+              </li>
+            ))}
           </div>
         )}
       </Modal>

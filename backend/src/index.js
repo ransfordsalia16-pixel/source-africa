@@ -14,6 +14,7 @@ import businessApplicationRoutes from "./routes/businessApplications.js";
 import productRoutes from "./routes/products.js";
 import buyerVerificationRoutes from "./routes/buyerVerification.js";
 import payoutAccountRoutes from "./routes/payoutAccounts.js";
+import sourcingRequestRoutes from "./routes/sourcingRequests.js";
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use("/api", businessApplicationRoutes);
 app.use("/api", productRoutes);
 app.use("/api", buyerVerificationRoutes);
 app.use("/api", payoutAccountRoutes);
+app.use("/api", sourcingRequestRoutes);
 
 // Keep error details out of responses; log the real thing server-side. Sensitive-action
 // failures still get audited by the code path that threw, not here.
