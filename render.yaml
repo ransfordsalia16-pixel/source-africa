@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: source-africa-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    # Render's free plan has no persistent disk, so the SQLite file doesn't survive a restart or
+    # redeploy — migrate + seed run on every boot instead. Both are idempotent (CREATE TABLE IF
+    # NOT EXISTS / INSERT OR IGNORE), so this is safe even if the disk *does* happen to persist.
+    startCommand: node src/db/migrate.js && node src/db/seed.js && node src/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      # Must be exactly 64 hex characters (32 bytes) — Render's generateValue doesn't guarantee
+      # that shape, so this one is set manually in the dashboard. See backend/.env.example.
+      - key: MFA_ENCRYPTION_KEY
+        sync: false
+      # Set to the deployed frontend's URL once it exists (see .github or README deployment notes).
+      - key: CORS_ORIGIN
+        sync: false
