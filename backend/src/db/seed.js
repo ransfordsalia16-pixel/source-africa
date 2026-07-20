@@ -30,8 +30,8 @@ const insertUser = db.prepare(`
 
 const buyer = {
   id: "USR-BUY-01",
-  email: "ama@boateng-hospitality.example",
-  password_hash: bcrypt.hashSync(process.env.DEMO_BUYER_PASSWORD || "demo-buyer-pass", 10),
+  email: "tony@gmail.com",
+  password_hash: bcrypt.hashSync(process.env.DEMO_BUYER_PASSWORD || "123456789", 10),
   name: "Ama Boateng",
   role_key: "buyer",
   location: "Accra, Ghana",
@@ -42,8 +42,8 @@ const buyer = {
 
 const supplierUser = {
   id: "USR-SUP-01",
-  email: "liwei@shenzhensolar.example",
-  password_hash: bcrypt.hashSync(process.env.DEMO_SUPPLIER_PASSWORD || "demo-supplier-pass", 10),
+  email: "steve@gmail.com",
+  password_hash: bcrypt.hashSync(process.env.DEMO_SUPPLIER_PASSWORD || "123456789", 10),
   name: "Li Wei",
   role_key: "supplier",
   location: "Shenzhen, China",
@@ -54,8 +54,8 @@ const supplierUser = {
 
 const admin = {
   id: "USR-ADM-01",
-  email: "kwame@sourcebridge.example",
-  password_hash: bcrypt.hashSync(process.env.DEMO_ADMIN_PASSWORD || "demo-admin-pass", 10),
+  email: "ransfordsalia16@gmail.com",
+  password_hash: bcrypt.hashSync(process.env.DEMO_ADMIN_PASSWORD || "123456789", 10),
   name: "Kwame Asante",
   role_key: "super_admin",
   location: "Accra, Ghana",
@@ -218,9 +218,9 @@ for (const m of SEED_MESSAGES) {
 
 console.log("Seed complete.");
 console.log("Demo logins:");
-console.log(`  buyer:              ${buyer.email} / ${process.env.DEMO_BUYER_PASSWORD || "demo-buyer-pass"}`);
+console.log(`  buyer:              ${buyer.email} / ${process.env.DEMO_BUYER_PASSWORD || "123456789"}`);
 console.log(`  buyer (second):     ${buyerTwo.email} / ${process.env.DEMO_BUYER_TWO_PASSWORD || "demo-buyer-two-pass"}`);
-console.log(`  supplier:           ${supplierUser.email} / ${process.env.DEMO_SUPPLIER_PASSWORD || "demo-supplier-pass"}`);
-console.log(`  admin (super):      ${admin.email} / ${process.env.DEMO_ADMIN_PASSWORD || "demo-admin-pass"}`);
+console.log(`  supplier:           ${supplierUser.email} / ${process.env.DEMO_SUPPLIER_PASSWORD || "123456789"}`);
+console.log(`  admin (super):      ${admin.email} / ${process.env.DEMO_ADMIN_PASSWORD || "123456789"}`);
 console.log(`  admin (verification): ${verificationAdmin.email} / ${process.env.DEMO_VERIFICATION_ADMIN_PASSWORD || "demo-verification-pass"}`);
 console.log(`  admin (finance):    ${financeAdmin.email} / ${process.env.DEMO_FINANCE_ADMIN_PASSWORD || "demo-finance-pass"}`);
